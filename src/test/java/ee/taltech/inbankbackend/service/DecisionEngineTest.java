@@ -6,9 +6,12 @@ import ee.taltech.inbankbackend.exceptions.InvalidLoanPeriodException;
 import ee.taltech.inbankbackend.exceptions.InvalidPersonalCodeException;
 import ee.taltech.inbankbackend.exceptions.NoValidLoanException;
 import ee.taltech.inbankbackend.model.Decision;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.InjectMocks;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -108,6 +111,24 @@ class DecisionEngineTest {
         assertThrows(NoValidLoanException.class,
                 () -> decisionEngine.calculateApprovedLoan(debtorPersonalCode, 10000, 48, "Estonia", 18));
     }
+
+    @Test
+    void testMinimumAge() {
+        assertThrows(NoValidLoanException.class,
+                () -> decisionEngine.calculateApprovedLoan(segment3PersonalCode, 10000, 48, "Estonia", 17));
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+            "Estonia, 74",
+            "Latvia, 72",
+            "Lithuania, 71",
+            "China, 18",
+    })
+    void testMaximumAge(String country, Integer age) {
+        assertThrows(NoValidLoanException.class, () -> decisionEngine.calculateApprovedLoan(segment3PersonalCode, 10000, 48, country, age));
+    }
+
 
 }
 

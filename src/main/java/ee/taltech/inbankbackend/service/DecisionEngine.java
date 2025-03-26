@@ -59,16 +59,11 @@ public class DecisionEngine {
             throw new NoValidLoanException("Loans are not available with debt!");
         }
 
-         //O(1)
         loanPeriod = Math.max(loanPeriod, (int) Math.ceil((double) DecisionEngineConstants.MINIMUM_LOAN_AMOUNT / creditModifier));
 
         while(calculateCreditScore(creditModifier, loanAmount, loanPeriod) < 0.1 && loanPeriod < DecisionEngineConstants.MAXIMUM_LOAN_PERIOD) {
             loanPeriod++;
         }
-        //    O(n)
-//        while (highestValidLoanAmount(creditModifier, loanPeriod) < DecisionEngineConstants.MINIMUM_LOAN_AMOUNT) {
-//            loanPeriod++;
-//        }
 
         if (loanPeriod <= DecisionEngineConstants.MAXIMUM_LOAN_PERIOD) {
             outputLoanAmount = Math.min(DecisionEngineConstants.MAXIMUM_LOAN_AMOUNT, highestValidLoanAmount(creditModifier, loanPeriod));
@@ -155,11 +150,17 @@ public class DecisionEngine {
      * Calculates Credit Score based on creditModifier, loanAmount and loanPeriod
      *
      * @return creditScore
-     * **/
+     *
+     **/
     private Double calculateCreditScore(Integer creditModifier,Integer loanAmount, Integer loanPeriod) {
         return ((((double)creditModifier / loanAmount) * loanPeriod) / 10.0);
     }
-
+    /**
+     * Gets a maximum age limit based on baltic countries
+     *
+     * @return DecisionEngineConstants_MAXIMUM_AGE_{country} if country is available.
+     * @throws NoValidLoanException if the country doesn't match any listed countries(Baltic-s) and notifies the user.
+     **/
     private int getMaximumAgeLimit(String country) throws NoValidLoanException {
          return Optional.ofNullable(AGE_LIMITS.get(country.toLowerCase()))
                  .orElseThrow(() -> new NoValidLoanException("Loans are not available for your Country"));

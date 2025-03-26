@@ -1,0 +1,14 @@
+Feedback:
+
+
+Good:
+Constants were placed into a separate file for easy access and made it easy to extend the values or change them.
+Informative Comments
+MVC approach
+Unit tests were easy to modify and working properly
+
+Bad:
+Included unnecessary annotations.
+There were times when autowiring of variables could have caused a concurrency issue leading to users seeing values they did not enter.
+There was repetitive code.
+Loan length values were set from 6 months to 60 months, but the ticket asked for 12 to 48 months.

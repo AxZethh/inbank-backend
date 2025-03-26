@@ -1,16 +1,16 @@
-package ee.taltech.inbankbackend.endpoint;
+package ee.taltech.inbankbackend.model;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.Setter;
-import org.springframework.stereotype.Component;
+import lombok.NoArgsConstructor;
 
 /**
  * Holds the response data of the REST endpoint.
  */
 @Getter
-@Setter
-@Component
-public class DecisionResponse {
+@AllArgsConstructor
+@NoArgsConstructor
+public class Decision {
     private Integer loanAmount;
     private Integer loanPeriod;
     private String errorMessage;

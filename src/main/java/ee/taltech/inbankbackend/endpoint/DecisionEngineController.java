@@ -4,7 +4,9 @@ import ee.taltech.inbankbackend.exceptions.InvalidLoanAmountException;
 import ee.taltech.inbankbackend.exceptions.InvalidLoanPeriodException;
 import ee.taltech.inbankbackend.exceptions.InvalidPersonalCodeException;
 import ee.taltech.inbankbackend.exceptions.NoValidLoanException;
-import ee.taltech.inbankbackend.service.Decision;
+import ee.taltech.inbankbackend.model.Decision;
+import ee.taltech.inbankbackend.model.DecisionRequest;
+import ee.taltech.inbankbackend.model.DecisionResponse;
 import ee.taltech.inbankbackend.service.DecisionEngine;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -21,12 +23,10 @@ import org.springframework.web.bind.annotation.RestController;
 public class DecisionEngineController {
 
     private final DecisionEngine decisionEngine;
-    private final DecisionResponse response;
 
     @Autowired
-    DecisionEngineController(DecisionEngine decisionEngine, DecisionResponse response) {
+    DecisionEngineController(DecisionEngine decisionEngine) {
         this.decisionEngine = decisionEngine;
-        this.response = response;
     }
 
     /**
@@ -39,37 +39,32 @@ public class DecisionEngineController {
      * - If no valid loans can be found, the endpoint returns a not found response with an error message.<br>
      * - If a valid loan is found, a DecisionResponse is returned containing the approved loan amount and period.
      *
-     * @param request The request body containing the customer's personal ID code, requested loan amount, and loan period
+     * @param request The request body containing the customer's personal ID code, requested loan amount, loan period, country and age
      * @return A ResponseEntity with a DecisionResponse body containing the approved loan amount and period, and an error message (if any)
      */
     @PostMapping("/decision")
     public ResponseEntity<DecisionResponse> requestDecision(@RequestBody DecisionRequest request) {
+        System.out.println(request.getLoanAmount() + " " + request.getLoanPeriod() + " " + request.getPersonalCode() + " " + request.getCountry() + " " + request.getAge());
         try {
             Decision decision = decisionEngine.
-                    calculateApprovedLoan(request.getPersonalCode(), request.getLoanAmount(), request.getLoanPeriod());
-            response.setLoanAmount(decision.getLoanAmount());
-            response.setLoanPeriod(decision.getLoanPeriod());
-            response.setErrorMessage(decision.getErrorMessage());
-
-            return ResponseEntity.ok(response);
+                    calculateApprovedLoan(request.getPersonalCode(), request.getLoanAmount(), request.getLoanPeriod(), request.getCountry(),request.getAge());;
+            return ResponseEntity.ok(getResponse(decision.getLoanAmount(), decision.getLoanPeriod(), decision.getErrorMessage()));
         } catch (InvalidPersonalCodeException | InvalidLoanAmountException | InvalidLoanPeriodException e) {
-            response.setLoanAmount(null);
-            response.setLoanPeriod(null);
-            response.setErrorMessage(e.getMessage());
-
-            return ResponseEntity.badRequest().body(response);
+            return ResponseEntity.badRequest().body(getResponse(null, null, e.getMessage()));
         } catch (NoValidLoanException e) {
-            response.setLoanAmount(null);
-            response.setLoanPeriod(null);
-            response.setErrorMessage(e.getMessage());
-
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(getResponse(null, null, e.getMessage()));
         } catch (Exception e) {
-            response.setLoanAmount(null);
-            response.setLoanPeriod(null);
-            response.setErrorMessage("An unexpected error occurred");
-
-            return ResponseEntity.internalServerError().body(response);
+            return ResponseEntity.internalServerError().body(getResponse(null, null,"An unexpected error occurred"));
         }
+    }
+
+    private DecisionResponse getResponse(Integer loanAmount, Integer loanPeriod, String errorMessage) {
+        DecisionResponse response = new DecisionResponse();
+        response.setLoanAmount(loanAmount);
+        response.setLoanPeriod(loanPeriod);
+        response.setErrorMessage(errorMessage);
+
+
+        return response;
     }
 }

@@ -1,4 +1,4 @@
-package ee.taltech.inbankbackend.endpoint;
+package ee.taltech.inbankbackend.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -10,6 +10,8 @@ import lombok.Getter;
 @AllArgsConstructor
 public class DecisionRequest {
     private String personalCode;
-    private Long loanAmount;
+    private Integer loanAmount;
     private int loanPeriod;
+    private String country;
+    private int age;
 }

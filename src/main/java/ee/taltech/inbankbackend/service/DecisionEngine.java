@@ -72,7 +72,7 @@ public class DecisionEngine {
         }
 
         if(calculateCreditScore(creditModifier, loanAmount, loanPeriod) < 0.1){
-            throw new NoValidLoanException("Credit score too low, Loan is not available for your bracket!");
+            throw new NoValidLoanException("Credit score too low, this loan amount is not available for your bracket!");
         }
 
         return new Decision(outputLoanAmount, loanPeriod, null);
